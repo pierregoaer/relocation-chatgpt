@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
+
+:root {
+    --primary-accent-color: #0b394c;
+    --secondary-accent-color: #2191ce;
+    --primary-accent-color-transparent: rgba(11, 57, 76, 0.3);
+    --primary-text-color: #404040;
+    --secondary-text-color: #656565;
+    --tertiary-text-color: #a1a1a1;
+
+    --dark-grey: #7e7e7e;
+    --medium-grey: #d2d2d2;
+    --light-grey: #f4f5f6;
+    --black: #1f1f1f;
+
+    --border-radius-main: .5rem;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1;
+}
+
+.wrapper {
+    position: relative;
+}
+
+.container {
+    height: 100vh;
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+}
+
+section {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 80px;
+    /*gap: 40px;*/
+    background-color: var(--light-grey);
+    border: 2px solid var(--dark-grey);
+    transition: all 1s ease-in-out;
+    animation: section-slide 2000ms;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--primary-accent-color);
+    margin-bottom: 40px;
+}
+
+h2 {
+    font-size: 1.8rem;
+    color: var(--primary-accent-color);
+    margin-bottom: 20px;
+}
+
+p {
+    font-family: 'Merriweather', serif;
+    font-size: 1.3rem;
+    margin-bottom: 60px;
+    line-height: 1.5;
+}
+
+.text {
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+.text p {
+    margin-bottom: 10px;
+}
+
+.section-options {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+button,
+input {
+    border: 1px solid var(--primary-accent-color);
+    background-color: transparent;
+    border-radius: var(--border-radius-main);
+    color: var(--primary-text-color);
+    font-family: 'Merriweather', serif;
+    font-size: 1.1rem;
+}
+
+button {
+    padding: 15px 25px;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(.97);
+    border-color: var(--secondary-accent-color);
+}
+
+.option-selected {
+    background-color: var(--primary-accent-color);
+    color: white;
+}
+
+input {
+    padding: 15px 10px;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--secondary-accent-color);
+}
+
+.slider-dots {
+    position: fixed;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+}
+
+.slider-dot {
+    width: 15px;
+    height: 15px;
+    background-color: var(--primary-accent-color);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+}
+
