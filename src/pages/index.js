@@ -1,9 +1,10 @@
 import React, {useState} from "react"
 import "../styles/styles.css"
+import axios from "axios";
 
 export default function Home() {
     const initialPreferences = {
-        country: null,
+        country: "doesn't matter",
         affordability: null,
         workLifeBalance: null,
         weather: null,
@@ -11,8 +12,8 @@ export default function Home() {
     }
 
     const [preferences, setPreferences] = useState(initialPreferences)
-
     const [currentSection, setCurrentSection] = useState(0)
+    const [isSubmitted, setIsSubmitted] = useState(false)
     const slides = ["1", "2", "3", "4", "5", "6"]
 
     const dotsElements = slides.map((slide, index) => {
@@ -37,6 +38,12 @@ export default function Home() {
         }
     }
 
+    function goToPrevious() {
+        if (currentSection > 0) {
+            setCurrentSection(prevSection => prevSection - 1)
+        }
+    }
+
     function handleBtnClick(e) {
         e.preventDefault()
         const target = e.target
@@ -50,8 +57,45 @@ export default function Home() {
         )
     }
 
-    console.log(currentSection)
-    console.log(preferences)
+    function inputChange(e) {
+        e.preventDefault()
+        const target = e.target
+        const section = target.closest("form").name
+        setPreferences(prev => (
+                {
+                    ...prev,
+                    [section]: target.value
+                }
+            )
+        )
+    }
+
+    function handleInputSubmit(e) {
+        e.preventDefault()
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        setIsSubmitted(true)
+        console.log(preferences)
+        try {
+            const response = await axios.post(
+                "http://127.0.0.1:8080",
+                preferences
+            );
+            setIsSubmitted(false)
+            setPreferences(initialPreferences)
+            window.alert(response.data.message)
+            console.log(response.data.message)
+        } catch (error) {
+            console.error(error);
+            window.alert("Something went wrong, please try again!")
+        }
+        setIsSubmitted(false)
+        // setMessageSubmitted(false)
+
+    }
+
 
     return (
         <div className="wrapper">
@@ -172,14 +216,47 @@ export default function Home() {
                     <h2>COUNTRY</h2>
                     <p>Do you have a country preference?</p>
                     <form className="section-options" name="country">
-                        <button name="null" onClick={handleBtnClick}>No Preference</button>
-                        <input type="text" name="country" placeholder="Type a country"/>
+                        <button name="doesn't matter" onClick={handleBtnClick}
+                                className={preferences.country === "doesn't matter" ? "option-selected" : ""}>No
+                            Preference
+                        </button>
+                        <input type="text"
+                               name="country"
+                               placeholder="Type a country"
+                               onChange={inputChange}
+                               onSubmit={handleInputSubmit}
+                               className={preferences.country !== "null" && preferences.country.length > 0 ? "option-selected" : ""}
+                               value={preferences.country === "null" ? "" : preferences.country}
+                        />
                     </form>
+                    {
+                        isSubmitted ?
+                            <div className="spinner">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div> :
+                            <button onClick={handleSubmit} className="validate-btn">Validate answers</button>
+                    }
                 </section>
             </div>
             <div className="slider-dots">
                 {dotsElements}
             </div>
+
+            {currentSection > 0 && <div className="move-btn move-btn-up" onClick={goToPrevious}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                        d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12V16H11V12H8L12 8L16 12H13Z"></path>
+                </svg>
+            </div>}
+            {currentSection < slides.length - 1 && <div className="move-btn move-btn-down" onClick={goToNext}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                        d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path>
+                </svg>
+            </div>}
         </div>
     )
 }
