@@ -2,6 +2,27 @@ import React, {useState} from "react"
 import "../styles/styles.css"
 import axios from "axios";
 
+
+export function Head() {
+    return (
+        <>
+            <html lang="en"/>
+            <title>Relocation with ChatGPT</title>
+            <meta name="description"
+                  content="Are you working remotely and wanting to move? This is a ChatGPT-based tool to help you find your next location based on YOUR preferences."/>
+            <meta name="robots" content="index, follow"/>
+            <meta property="og:url" content="https://relocation-chatgpt.netlify.app"/>
+            <meta property="og:type" content="website"/>
+            <meta property="og:title"
+                  content="Relocation with ChatGPT"/>
+            <meta property="og:description"
+                  content="Are you working remotely and wanting to move? This is a ChatGPT-based tool to help you find your next location based on YOUR preferences."/>
+            <meta property="og:image"
+                  content="https://res.cloudinary.com/dg8awj55m/image/upload/v1687218164/pierregoaer.com/images/chatgpt_relocation.png"/>
+        </>
+    )
+}
+
 function Section({
                      section,
                      sectionIndex,
@@ -18,7 +39,7 @@ function Section({
         return (
             <section style={{transform: `translateY(${100 * (1 + sectionIndex - currentSection)}%)`}}>
                 <h2>{section.displayName.toUpperCase()}</h2>
-                <p>{`If you have a ${section.displayName} preference, type it here. If not, leave it blank.`}</p>
+                <p>{section.text}</p>
                 <form className="section-options" name={sectionName} onSubmit={e => handleEnter(e)}>
                     <input type="text"
                            name={sectionName}
@@ -69,7 +90,7 @@ export default function Home() {
         language: "doesn't matter",
         affordability: null,
         workLifeBalance: null,
-        weather: null,
+        goodWeather: null,
         proximityToNature: null,
         anythingElse: "no additional info"
     }
@@ -83,12 +104,14 @@ export default function Home() {
         {
             type: "input",
             name: "location",
-            displayName: "location"
+            displayName: "location",
+            text:"If you have a location preference, type it here. If not, leave it blank."
         },
         {
             type: "input",
             name: "language",
-            displayName: "language"
+            displayName: "language",
+            text:"If you have a language preference, type it here. If not, leave it blank."
         },
         {
             type: "select",
@@ -102,8 +125,8 @@ export default function Home() {
         },
         {
             type: "select",
-            name: "weather",
-            displayName: "weather"
+            name: "goodWeather",
+            displayName: "good weather"
         },
         {
             type: "select",
@@ -112,8 +135,9 @@ export default function Home() {
         },
         {
             type: "input",
-            name: "anythingelse",
-            displayName: "anything else"
+            name: "anythingElse",
+            displayName: "anything else",
+            text:"Anything else you'd like to add? Type it here. If not, leave it blank and go to the next page to submit."
         },
     ]
 
@@ -197,19 +221,27 @@ export default function Home() {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        if (JSON.stringify(preferences) === JSON.stringify(initialPreferences)) {
+            window.alert("You haven't made any selection")
+            return false
+        }
+        // console.log(preferences)
         setIsSubmitted(true)
-        console.log(preferences)
         try {
             const response = await axios.post(
-                "http://127.0.0.1:8080",
+                "https://relocation-chatgpt.api.pierregoaer.dev",
                 preferences
             );
             setIsSubmitted(false)
             setPreferences(initialPreferences)
             setResultsReceived(true)
-            setResults(response.data.message)
+            const destinationData = JSON.parse(response.data.destination)
+            // const destinationObject = JSON.parse(destinationData)
+            // console.log(destinationObject)
+            // console.log(destinationData)
+            setResults(destinationData)
         } catch (error) {
-            console.error(error);
+            // console.error(error);
             window.alert("Something went wrong, please try again!")
         }
         setIsSubmitted(false)
@@ -220,8 +252,7 @@ export default function Home() {
         setResults(null)
     }
 
-    console.log(results)
-    console.log(preferences)
+    // console.log(preferences)
 
     return (
         <div className="wrapper">
@@ -229,14 +260,17 @@ export default function Home() {
                 <section style={{transform: `translateY(${100 * (0 - currentSection)}%)`}}>
                     <h1>Welcome to your relocation</h1>
                     <div className="text">
-                        <p>Answer a few questions and we'll show your where you move based on your preferences.</p>
-                        <p>Let's find you a new place to live in!</p>
+                        <p>Are you working remotely and looking for a new place to live in?</p>
+                        <p>Answer a few questions and we'll show your where to move <strong>based on your preferences</strong>.</p>
+                        <br/>
+                        <p>Let's find your new home!</p>
                     </div>
                     <button onClick={goToNext}>Let's Start</button>
                 </section>
                 {sectionsElements}
                 <section style={{transform: `translateY(${100 * (sections.length + 1 - currentSection)}%)`}}>
-                    <h2>Ready to submit</h2>
+                    <h2>Ready to submit?</h2>
+                    <p>Let's see where you should move!</p>
                     {
                         isSubmitted ?
                             <div className="spinner">
@@ -257,8 +291,16 @@ export default function Home() {
 
             {results &&
                 <div className="results">
-                    {results}
-                    <button onClick={handleRestart} className="restart-btn">Restart</button>
+                    <div className="image">
+                        <img src={results.photoReference} alt={`${results.city}, ${results.country}`}/>
+                    </div>
+                    <div className="text">
+                        <p>You should move to ...</p>
+                        <h2>{`${results.city}, ${results.country}`}</h2>
+                        <p>{`Why? ${results.reason}.`}</p>
+                        <button onClick={handleRestart} className="restart-btn">Restart</button>
+                    </div>
+
                 </div>
             }
 
